@@ -1,23 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Shape Summoner</title>
-  <style>
-    body { margin:0; overflow:hidden; background:#111; }
-    canvas { display:block; pointer-events:auto; cursor:crosshair; }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Shape Summoner v3.0</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div id="ui">
+    <div id="class-select"></div>
+    <div id="stats">
+      <span id="class-name"></span>
+      <span id="level"></span>
+      <span id="xp"></span>
+      <span id="hp"></span>
+    </div>
+  </div>
   <canvas id="game"></canvas>
 
-  <script src="utils.js"></script>
-  <script src="particles.js"></script>
-  <script src="player.js"></script>
-  <script src="classes.js"></script>
-  <script src="abilities.js"></script>
-  <script src="turrets.js"></script>
-  <script src="enemies.js"></script>
-  <script src="ui.js"></script>
-  <script src="game.js"></script>
+  <script type="module" src="src/main.js"></script>
 </body>
 </html>
