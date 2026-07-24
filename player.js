@@ -1,3 +1,5 @@
+// player.js
+
 const p = {
   x: c.width / 2,
   y: c.height / 2,
@@ -11,7 +13,12 @@ const p = {
   mRegen: 0.2,
   dmg: 1,
   shootCooldown: 0,
-  shootDelay: 10
+  shootDelay: 10,
+
+  // Level & EXP
+  level: 1,
+  exp: 0,
+  expToNext: 100
 };
 
 let money = Number(localStorage.getItem("cgMoney")) || 0;
@@ -31,6 +38,7 @@ onmousemove = e => {
 
 onkeydown = e => {
   keys[e.key] = true;
+
   if (e.key === "Escape") paused = !paused;
   if (!paused && e.key === " ") shoot();
   if (e.key === "e" && !paused && !dead) activateAbility();
@@ -96,4 +104,40 @@ function updatePlayer() {
   p.mana = Math.min(p.maxMana, p.mana + p.mRegen);
 
   if (p.shootCooldown > 0) p.shootCooldown--;
+}
+
+// ===== LEVEL & EXP =====
+
+function gainExp(amount) {
+  p.exp += amount;
+
+  while (p.exp >= p.expToNext) {
+    p.exp -= p.expToNext;
+    levelUp();
+  }
+}
+
+function levelUp() {
+  p.level++;
+
+  // Stat scaling
+  p.maxHp += 20;
+  p.maxMana += 10;
+
+  // Heal on level up
+  p.hp = p.maxHp;
+  p.mana = p.maxMana;
+
+  // Next level requirement
+  p.expToNext = Math.floor(p.expToNext * 1.25);
+
+  // Level-up animation
+  for (let i = 0; i < 80; i++) {
+    spawnParticle(p.x, p.y, "#ffff66", 12, 40,
+      Math.random()*6 - 3,
+      Math.random()*6 - 3
+    );
+  }
+
+  shake = 20;
 }
