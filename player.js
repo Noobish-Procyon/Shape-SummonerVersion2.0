@@ -1,6 +1,6 @@
 const p = {
-  x: c.width/2,
-  y: c.height/2,
+  x: c.width / 2,
+  y: c.height / 2,
   r: 20,
   s: 5,
   hp: 100,
@@ -33,9 +33,12 @@ onkeydown = e => {
   keys[e.key] = true;
   if (e.key === "Escape") paused = !paused;
   if (!paused && e.key === " ") shoot();
+  if (e.key === "e" && !paused && !dead) activateAbility();
 };
 
-onkeyup = e => keys[e.key] = false;
+onkeyup = e => {
+  keys[e.key] = false;
+};
 
 c.addEventListener("mousedown", e => {
   const mx = e.clientX;
