@@ -1,8 +1,5 @@
 // classes.js
 
-// =========================
-// BASE CLASS DATA
-// =========================
 let currentClass = "circle";
 let currentEvo = null;
 
@@ -24,9 +21,6 @@ const classColors = {
   hexagon: "#ffb84d"
 };
 
-// =========================
-// EVOLUTION DATA
-// =========================
 const classEvo = {
   circle: ["circle", "orb", "nova"],
   square: ["square", "fortress", "citadel"],
@@ -76,11 +70,7 @@ const evoColors = {
   bloodGod: "#cc0033"
 };
 
-// =========================
-// APPLY BASE CLASS STATS
-// =========================
 function applyClassStats(s, cls) {
-  // Base stats
   s.hp = 30;
   s.turretDelay = 30;
   s.turretDmgMult = 1;
@@ -120,13 +110,9 @@ function applyClassStats(s, cls) {
   s.col = classColors[cls];
 }
 
-// =========================
-// APPLY EVOLUTION STATS
-// =========================
 function applyEvolutionStats(s, evo) {
   if (!evo) return;
 
-  // Tier 2 evolutions
   if (evo === "orb") {
     s.hp += 20;
     s.turretDelay += 10;
@@ -150,7 +136,6 @@ function applyEvolutionStats(s, evo) {
     s.lifesteal += 0.1;
   }
 
-  // Tier 3 evolutions
   if (evo === "nova") {
     s.hp += 100;
     s.turretDmgMult *= 1.5;
@@ -180,7 +165,40 @@ function applyEvolutionStats(s, evo) {
   s.col = evoColors[evo];
 }
 
-// =========================
+function buyClass(type) {
+  const cost = classPrices[type];
+
+  if (money >= cost) {
+    money -= cost;
+    currentClass = type;
+    currentEvo = null;
+
+    for (let s of sums) {
+      applyClassStats(s, type);
+    }
+  }
+}
+
+function evolveClass() {
+  const evoList = classEvo[currentClass];
+  const currentIndex = evoList.indexOf(currentEvo || currentClass);
+
+  if (currentIndex >= evoList.length - 1) return;
+
+  const nextEvo = evoList[currentIndex + 1];
+  const cost = evoPrices[nextEvo];
+
+  if (money < cost) return;
+
+  money -= cost;
+  currentEvo = nextEvo;
+
+  for (let s of sums) {
+    applyClassStats(s, currentClass);
+    applyEvolutionStats(s, currentEvo);
+  }
+}
+
 // BUY CLASS
 // =========================
 function buyClass(type) {
