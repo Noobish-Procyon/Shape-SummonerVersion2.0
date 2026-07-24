@@ -9,6 +9,23 @@ function drawHUD() {
   x.fillText(`Money: ${money}`, 10, 60);
   x.fillText(`Difficulty: ${difficulty.toFixed(2)}`, 10, 80);
   x.fillText(`Class: ${currentClass}`, 10, 100);
+
+  // Level
+  x.fillText(`Level: ${p.level}`, 10, 120);
+
+  // EXP bar background
+  x.fillStyle = "black";
+  x.fillRect(10, 140, 200, 20);
+
+  // EXP bar fill
+  const expPercent = p.exp / p.expToNext;
+  x.fillStyle = "yellow";
+  x.fillRect(10, 140, 200 * expPercent, 20);
+
+  // EXP text
+  x.fillStyle = "white";
+  x.font = "14px Arial";
+  x.fillText(`${p.exp}/${p.expToNext} EXP`, 15, 155);
 }
 
 function drawSummons() {
@@ -42,6 +59,15 @@ function drawBossShots() {
   }
 }
 
+function drawEliteShots() {
+  for (let s of eliteShots) {
+    x.beginPath();
+    x.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    x.fillStyle = s.col;
+    x.fill();
+  }
+}
+
 function drawEnemies() {
   for (let e of enemies) {
     x.beginPath();
@@ -56,6 +82,24 @@ function drawEnemies() {
     x.fillRect(e.x - e.r, e.y - e.r - 10, e.r*2, 6);
 
     x.fillStyle = "lime";
+    x.fillRect(e.x - e.r, e.y - e.r - 10, (e.r*2)*hpPercent, 6);
+  }
+}
+
+function drawElites() {
+  for (let e of elites) {
+    x.beginPath();
+    x.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+    x.fillStyle = e.col;
+    x.fill();
+
+    const maxHp = e.eliteType.hpMult * difficulty;
+    const hpPercent = Math.max(0, e.hp / maxHp);
+
+    x.fillStyle = "black";
+    x.fillRect(e.x - e.r, e.y - e.r - 10, e.r*2, 6);
+
+    x.fillStyle = "red";
     x.fillRect(e.x - e.r, e.y - e.r - 10, (e.r*2)*hpPercent, 6);
   }
 }
