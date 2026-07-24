@@ -3,6 +3,9 @@
 let sums = [];
 let shots = [];
 
+// =========================
+// CREATE SUMMON
+// =========================
 function createSummon(xPos, yPos) {
   let s = {
     x: xPos,
@@ -24,17 +27,22 @@ function createSummon(xPos, yPos) {
   sums.push(s);
 }
 
+// =========================
+// FIND TARGET FOR SUMMON
+// =========================
 function getTurretTarget(s) {
   let best = null;
   let bestDist = Infinity;
 
+  // Boss first
   if (boss) {
     const d = dist(s, boss);
     best = boss;
     bestDist = d;
   }
 
-  for (let e of enemies) {
+  // Elites second
+  for (let e of elites) {
     const d = dist(s, e);
     if (d < bestDist) {
       best = e;
@@ -42,7 +50,8 @@ function getTurretTarget(s) {
     }
   }
 
-  for (let e of elites) {
+  // Normal enemies last
+  for (let e of enemies) {
     const d = dist(s, e);
     if (d < bestDist) {
       best = e;
@@ -53,6 +62,9 @@ function getTurretTarget(s) {
   return best;
 }
 
+// =========================
+// UPDATE SUMMONS
+// =========================
 function updateTurrets() {
   for (let s of sums) {
     s.rot += 0.03;
@@ -83,6 +95,7 @@ function updateTurrets() {
 
     s.turretCooldown = s.turretDelay;
 
+    // Summoner summons more summons
     if (s.summoner && Math.random() < 0.01) {
       createSummon(
         s.x + (Math.random()*40 - 20),
@@ -92,6 +105,9 @@ function updateTurrets() {
   }
 }
 
+// =========================
+// UPDATE SUMMON SHOTS
+// =========================
 function updateTurretShots() {
   for (let i = shots.length - 1; i >= 0; i--) {
     const s = shots[i];
@@ -104,58 +120,82 @@ function updateTurretShots() {
       continue;
     }
 
-    // Boss hit
+    // =========================
+    // HIT BOSS
+    // =========================
     if (boss) {
       const d = dist(s, boss);
       if (d < s.r + boss.r) {
         boss.hp -= s.dmg;
-        if (s.lifesteal) p.hp = Math.min(p.maxHp, p.hp + s.lifesteal*s.dmg);
+
+        if (s.lifesteal)
+          p.hp = Math.min(p.maxHp, p.hp + s.lifesteal * s.dmg);
+
         if (boss.hp <= 0) {
           boss = null;
           money += 20;
-          gainExp(500); // God Boss EXP
+          gainExp(500);
+          difficulty += 0.20; // difficulty increase on boss kill
         }
+
         shots.splice(i, 1);
         continue;
       }
     }
 
-    // Elite hit
+    // =========================
+    // HIT ELITES
+    // =========================
     for (let j = elites.length - 1; j >= 0; j--) {
       const e = elites[j];
       const d = dist(s, e);
+
       if (d < s.r + e.r) {
         e.hp -= s.dmg;
-        if (s.lifesteal) p.hp = Math.min(p.maxHp, p.hp + s.lifesteal*s.dmg);
+
+        if (s.lifesteal)
+          p.hp = Math.min(p.maxHp, p.hp + s.lifesteal * s.dmg);
+
         if (e.hp <= 0) {
           money += 15;
-          gainExp(100); // Elite EXP
+          gainExp(100);
+          difficulty += 0.20; // difficulty increase on elite kill
           elites.splice(j, 1);
         }
+
         shots.splice(i, 1);
         break;
       }
     }
 
-    // Normal enemies
+    // =========================
+    // HIT NORMAL ENEMIES
+    // =========================
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       const d = dist(s, e);
+
       if (d < s.r + e.r) {
         e.hp -= s.dmg;
-        if (s.lifesteal) p.hp = Math.min(p.maxHp, p.hp + s.lifesteal*s.dmg);
+
+        if (s.lifesteal)
+          p.hp = Math.min(p.maxHp, p.hp + s.lifesteal * s.dmg);
 
         if (e.hp <= 0) {
-          if (e.type === "summoner") {
-            money += 30;
-            gainExp(40); // Summoner EXP
-          } else if (e.type === "minion") {
-            money += 5;
-            gainExp(10); // Minion EXP
-          } else {
+
+          // MINION — NO difficulty increase
+          if (e.type === "minion") {
             money += 5;
             gainExp(10);
           }
+
+          // SUMMONER — difficulty increases
+          else if (e.type === "summoner") {
+            money += 30;
+            gainExp(40);
+            difficulty += 0.20;
+          }
+
           enemies.splice(j, 1);
         }
 
@@ -165,4 +205,3 @@ function updateTurretShots() {
     }
   }
 }
-
