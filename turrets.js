@@ -1,3 +1,5 @@
+// turrets.js
+
 let sums = [];
 let shots = [];
 
@@ -18,6 +20,7 @@ function createSummon(xPos, yPos) {
   };
 
   applyClassStats(s, currentClass);
+  applyEvolutionStats(s, currentEvo);
   sums.push(s);
 }
 
@@ -32,6 +35,14 @@ function getTurretTarget(s) {
   }
 
   for (let e of enemies) {
+    const d = dist(s, e);
+    if (d < bestDist) {
+      best = e;
+      bestDist = d;
+    }
+  }
+
+  for (let e of elites) {
     const d = dist(s, e);
     if (d < bestDist) {
       best = e;
@@ -93,33 +104,65 @@ function updateTurretShots() {
       continue;
     }
 
-    let hit = false;
-
+    // Boss hit
     if (boss) {
       const d = dist(s, boss);
       if (d < s.r + boss.r) {
         boss.hp -= s.dmg;
         if (s.lifesteal) p.hp = Math.min(p.maxHp, p.hp + s.lifesteal*s.dmg);
-        if (boss.hp <= 0) { boss = null; money += 20; }
+        if (boss.hp <= 0) {
+          boss = null;
+          money += 20;
+          gainExp(500); // God Boss EXP
+        }
         shots.splice(i, 1);
         continue;
       }
     }
 
+    // Elite hit
+    for (let j = elites.length - 1; j >= 0; j--) {
+      const e = elites[j];
+      const d = dist(s, e);
+      if (d < s.r + e.r) {
+        e.hp -= s.dmg;
+        if (s.lifesteal) p.hp = Math.min(p.maxHp, p.hp + s.lifesteal*s.dmg);
+        if (e.hp <= 0) {
+          money += 15;
+          gainExp(100); // Elite EXP
+          elites.splice(j, 1);
+        }
+        shots.splice(i, 1);
+        break;
+      }
+    }
+
+    // Normal enemies
     for (let j = enemies.length - 1; j >= 0; j--) {
       const e = enemies[j];
       const d = dist(s, e);
       if (d < s.r + e.r) {
         e.hp -= s.dmg;
         if (s.lifesteal) p.hp = Math.min(p.maxHp, p.hp + s.lifesteal*s.dmg);
+
         if (e.hp <= 0) {
-          money += e.type === "summoner" ? 30 : 5;
+          if (e.type === "summoner") {
+            money += 30;
+            gainExp(40); // Summoner EXP
+          } else if (e.type === "minion") {
+            money += 5;
+            gainExp(10); // Minion EXP
+          } else {
+            money += 5;
+            gainExp(10);
+          }
           enemies.splice(j, 1);
         }
+
         shots.splice(i, 1);
-        hit = true;
         break;
       }
     }
   }
 }
+
