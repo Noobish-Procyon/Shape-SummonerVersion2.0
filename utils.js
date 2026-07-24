@@ -18,3 +18,17 @@ function border(o) {
 function dist(a, b) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
+
+let shake = 0;
+
+function applyShake() {
+  if (shake > 0) {
+    x.save();
+    x.translate((Math.random() - 0.5) * shake, (Math.random() - 0.5) * shake);
+    shake *= 0.9;
+  }
+}
+
+function endShake() {
+  if (shake > 0) x.restore();
+}
