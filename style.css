@@ -1,0 +1,27 @@
+body {
+  margin: 0;
+  background: #05060a;
+  color: #eee;
+  font-family: system-ui, sans-serif;
+  overflow: hidden;
+}
+
+#game {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+#ui {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#stats span {
+  margin-right: 8px;
+}
