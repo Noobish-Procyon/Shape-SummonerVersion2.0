@@ -8,7 +8,22 @@ let bShots = [];
 let eliteShots = [];
 
 // =========================
-// SUMMONER ENEMY
+// BASIC MINION (50% weaker)
+// =========================
+function spawnMinion(x, y) {
+  enemies.push({
+    type: "minion",
+    x, y,
+    r: 15,
+    hp: 10 * difficulty,              // was 20 * difficulty
+    s: 1.5 + difficulty * 0.1,        // was 3 + difficulty * 0.2
+    dmg: 0.1 * difficulty,            // was 0.2 * difficulty
+    col: "#ff88cc"
+  });
+}
+
+// =========================
+// SUMMONER (50% weaker)
 // =========================
 function spawnSummonerEnemy() {
   enemies.push({
@@ -16,37 +31,23 @@ function spawnSummonerEnemy() {
     x: Math.random() * c.width,
     y: Math.random() * c.height,
     r: 35,
-    hp: 60 * difficulty,
-    s: 1.5,
+    hp: 30 * difficulty,              // was 60 * difficulty
+    s: 0.75,                          // was 1.5
     cd: 0,
     col: "#aa55ff"
   });
 }
 
 // =========================
-// MINION ENEMY
-// =========================
-function spawnMinion(x, y) {
-  enemies.push({
-    type: "minion",
-    x, y,
-    r: 15,
-    hp: 20 * difficulty,
-    s: 3 + difficulty * 0.2,
-    col: "#ff88cc"
-  });
-}
-
-// =========================
-// GOD BOSS
+// GOD BOSS (50% weaker)
 // =========================
 function spawnBoss() {
   boss = {
     x: Math.random() * c.width,
     y: Math.random() * c.height,
     r: 50,
-    hp: 20 * difficulty,
-    s: 2 + difficulty * 0.2,
+    hp: 10 * difficulty,              // was 20 * difficulty
+    s: 1 + difficulty * 0.1,          // was 2 + difficulty * 0.2
     cd: 0
   };
 }
@@ -57,40 +58,40 @@ setInterval(() => {
 }, 6000);
 
 // =========================
-// ELITE TYPES (weaker than boss)
+// ELITE TYPES (50% weaker)
 // =========================
 const eliteTypes = {
   titan: {
-    hpMult: 12,
-    spdMult: 1.2,
-    dmgMult: 1.2,
+    hpMult: 6,                        // was 12
+    spdMult: 0.6,                     // was 1.2
+    dmgMult: 0.6,                     // was 1.2
     size: 40,
     col: "#8888ff",
     drops: ["damageUp", "maxHpUp", "turretDamageUp"]
   },
 
   swift: {
-    hpMult: 8,
-    spdMult: 3,
-    dmgMult: 1,
+    hpMult: 4,                        // was 8
+    spdMult: 1.5,                     // was 3
+    dmgMult: 0.5,                     // was 1
     size: 35,
     col: "#55ccff",
     drops: ["moveSpeedUp", "attackSpeedUp", "projSpeedUp"]
   },
 
   inferno: {
-    hpMult: 10,
-    spdMult: 1.5,
-    dmgMult: 1.5,
+    hpMult: 5,                        // was 10
+    spdMult: 0.75,                    // was 1.5
+    dmgMult: 0.75,                    // was 1.5
     size: 38,
     col: "#ff5533",
     drops: ["multiShot", "burnDamage", "cdrUp"]
   },
 
   brood: {
-    hpMult: 9,
-    spdMult: 1.3,
-    dmgMult: 1.2,
+    hpMult: 4.5,                      // was 9
+    spdMult: 0.65,                    // was 1.3
+    dmgMult: 0.6,                     // was 1.2
     size: 42,
     col: "#33ff88",
     drops: ["summonHpUp", "summonAtkUp", "summonCountUp"]
@@ -111,14 +112,14 @@ function spawnElite() {
     y: Math.random() * c.height,
     r: pick.size,
     hp: pick.hpMult * difficulty,
-    s: pick.spdMult + difficulty * 0.1,
+    s: pick.spdMult + difficulty * 0.05,
     dmg: pick.dmgMult * difficulty,
     cd: 0,
     col: pick.col
   });
 }
 
-// Auto-spawn elites rarely
+// Auto-spawn elites every 8 seconds (rare)
 setInterval(() => {
   if (!paused && !dead && Math.random() < 0.2) {
     spawnElite();
@@ -140,14 +141,14 @@ function updateEnemies() {
 
       e.cd--;
       if (e.cd <= 0) {
-        const count = 3 + Math.floor(Math.random() * 3);
+        const count = 2 + Math.floor(Math.random() * 2); // fewer minions
         for (let k = 0; k < count; k++) {
           spawnMinion(
             e.x + (Math.random() * 40 - 20),
             e.y + (Math.random() * 40 - 20)
           );
         }
-        e.cd = 180;
+        e.cd = 240; // slower spawns
       }
     }
 
@@ -158,9 +159,8 @@ function updateEnemies() {
       border(e);
     }
 
-    const dp = dist(e, p);
-    if (dp < e.r + p.r) {
-      p.hp -= 0.5 * difficulty;
+    if (dist(e, p) < e.r + p.r) {
+      p.hp -= e.dmg; // reduced damage
       if (p.hp <= 0) dead = true;
     }
   }
@@ -179,7 +179,7 @@ function updateElites() {
     border(e);
 
     if (dist(e, p) < e.r + p.r) {
-      p.hp -= e.dmg * 0.5;
+      p.hp -= e.dmg * 0.5; // reduced elite contact damage
       if (p.hp <= 0) dead = true;
     }
 
@@ -189,13 +189,13 @@ function updateElites() {
         x: e.x,
         y: e.y,
         r: 10,
-        sp: 4 + difficulty,
+        sp: 3 + difficulty,           // slower projectiles
         dx: Math.cos(a),
         dy: Math.sin(a),
         col: e.col,
-        dmg: e.dmg
+        dmg: e.dmg * 0.5              // reduced projectile damage
       });
-      e.cd = 90;
+      e.cd = 120;
     }
   }
 }
@@ -218,13 +218,13 @@ function updateBoss() {
       x: boss.x,
       y: boss.y,
       r: 8,
-      sp: 5 + difficulty,
+      sp: 4 + difficulty,            // slower boss shots
       dx: Math.cos(ba),
       dy: Math.sin(ba),
       col: "orange",
-      dmg: 2 * difficulty
+      dmg: 1 * difficulty            // was 2 * difficulty
     });
-    boss.cd = 60;
+    boss.cd = 80;
   }
 }
 
