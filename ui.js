@@ -4,6 +4,7 @@ function drawHUD() {
   x.fillStyle = "white";
   x.font = "16px Arial";
 
+  // Basic stats
   x.fillText(`HP: ${p.hp.toFixed(0)}/${p.maxHp}`, 10, 20);
   x.fillText(`Mana: ${p.mana.toFixed(0)}/${p.maxMana}`, 10, 40);
   x.fillText(`Money: ${money}`, 10, 60);
@@ -26,6 +27,14 @@ function drawHUD() {
   x.fillStyle = "white";
   x.font = "14px Arial";
   x.fillText(`${p.exp}/${p.expToNext} EXP`, 15, 155);
+
+  // RESET BUTTON
+  x.fillStyle = "red";
+  x.fillRect(10, 180, 120, 40);
+
+  x.fillStyle = "white";
+  x.font = "18px Arial";
+  x.fillText("RESET", 30, 207);
 }
 
 function drawSummons() {
@@ -75,14 +84,17 @@ function drawEnemies() {
     x.fillStyle = e.col;
     x.fill();
 
-    const maxHp = e.type === "summoner" ? 60*difficulty : 20*difficulty;
+    const maxHp = e.type === "summoner"
+      ? 30 * difficulty
+      : 10 * difficulty;
+
     const hpPercent = Math.max(0, e.hp / maxHp);
 
     x.fillStyle = "black";
-    x.fillRect(e.x - e.r, e.y - e.r - 10, e.r*2, 6);
+    x.fillRect(e.x - e.r, e.y - e.r - 10, e.r * 2, 6);
 
     x.fillStyle = "lime";
-    x.fillRect(e.x - e.r, e.y - e.r - 10, (e.r*2)*hpPercent, 6);
+    x.fillRect(e.x - e.r, e.y - e.r - 10, (e.r * 2) * hpPercent, 6);
   }
 }
 
@@ -97,15 +109,16 @@ function drawElites() {
     const hpPercent = Math.max(0, e.hp / maxHp);
 
     x.fillStyle = "black";
-    x.fillRect(e.x - e.r, e.y - e.r - 10, e.r*2, 6);
+    x.fillRect(e.x - e.r, e.y - e.r - 10, e.r * 2, 6);
 
     x.fillStyle = "red";
-    x.fillRect(e.x - e.r, e.y - e.r - 10, (e.r*2)*hpPercent, 6);
+    x.fillRect(e.x - e.r, e.y - e.r - 10, (e.r * 2) * hpPercent, 6);
   }
 }
 
 function drawBoss() {
   if (!boss) return;
+
   x.beginPath();
   x.arc(boss.x, boss.y, boss.r, 0, Math.PI * 2);
   x.fillStyle = "red";
@@ -138,6 +151,7 @@ function drawPauseMenu() {
     x.fillText(`Cost: ${classPrices[cls]}`, xBox + 10, yBox + 45);
   }
 
+  // EVOLVE BUTTON
   x.fillStyle = "yellow";
   x.fillRect(300, 100, 200, 60);
 
@@ -165,6 +179,12 @@ function handleShopClick(mx, my) {
   if (mx >= 300 && mx <= 500 && my >= 100 && my <= 160) {
     evolveClass();
     return;
+  }
+}
+
+function handleResetClick(mx, my) {
+  if (mx >= 10 && mx <= 130 && my >= 180 && my <= 220) {
+    resetGame();
   }
 }
 
